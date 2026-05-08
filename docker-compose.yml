@@ -1,0 +1,110 @@
+version: '3.4'
+
+services:
+  catalog.db:
+    image: mongo
+    restart: always
+    volumes:
+      - catalog_data:/data/db
+
+  basket.db:
+    image: redis:alpine
+    restart: always
+
+  discount.db:
+    image: postgres
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=DiscountDb
+    volumes:
+      - discount_data:/var/lib/postgresql/data
+
+  ordering.db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    restart: always
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=Password123!
+    volumes:
+      - ordering_data:/var/opt/mssql
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    restart: always
+
+  catalog.api:
+    image: ${DOCKER_REGISTRY-}catalogapi
+    build:
+      context: .
+      dockerfile: src/Services/Catalog.API/Dockerfile
+    environment:
+      - ConnectionStrings__Catalog.API=mongodb://catalog.db:27017
+      - DatabaseName=BookstoreCatalogDb
+    depends_on:
+      - catalog.db
+
+  basket.api:
+    image: ${DOCKER_REGISTRY-}basketapi
+    build:
+      context: .
+      dockerfile: src/Services/Basket.API/Dockerfile
+    environment:
+      - CacheSettings__ConnectionString=basket.db:6379
+      - EventBusSettings__HostAddress=amqp://guest:guest@rabbitmq:5672
+      - GrpcSettings__DiscountUrl=http://discount.grpc:80
+    depends_on:
+      - basket.db
+      - rabbitmq
+      - discount.grpc
+
+  discount.api:
+    image: ${DOCKER_REGISTRY-}discountapi
+    build:
+      context: .
+      dockerfile: src/Services/Discount.API/Dockerfile
+    environment:
+      - ConnectionStrings__Discount.API=Host=discount.db;Port=5432;Database=DiscountDb;Username=postgres;Password=password
+    depends_on:
+      - discount.db
+
+  discount.grpc:
+    image: ${DOCKER_REGISTRY-}discountgrpc
+    build:
+      context: .
+      dockerfile: src/Services/Discount.Grpc/Dockerfile
+    environment:
+      - ConnectionStrings__Discount.Grpc=Host=discount.db;Port=5432;Database=DiscountDb;Username=postgres;Password=password
+    depends_on:
+      - discount.db
+
+  ordering.api:
+    image: ${DOCKER_REGISTRY-}orderingapi
+    build:
+      context: .
+      dockerfile: src/Services/Ordering/Ordering.API/Dockerfile
+    environment:
+      - ConnectionStrings__Ordering.API=Server=ordering.db;Database=OrderDb;User Id=sa;Password=Password123!;TrustServerCertificate=True
+      - EventBusSettings__HostAddress=amqp://guest:guest@rabbitmq:5672
+    depends_on:
+      - ordering.db
+      - rabbitmq
+
+  ocelotapigw:
+    image: ${DOCKER_REGISTRY-}ocelotapigw
+    build:
+      context: .
+      dockerfile: src/ApiGateways/OcelotApiGw/Dockerfile
+    ports:
+      - "5010:80"
+    depends_on:
+      - catalog.api
+      - basket.api
+      - discount.api
+      - ordering.api
+
+volumes:
+  catalog_data:
+  discount_data:
+  ordering_data:
