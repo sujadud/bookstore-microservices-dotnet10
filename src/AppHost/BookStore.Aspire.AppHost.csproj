@@ -25,5 +25,12 @@
     <ProjectReference Include="..\BuildingBlocks\EventBus.Messages\EventBus.Messages.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Remove="BookStore.Aspire.AppHost\**" />
+    <Content Remove="BookStore.Aspire.AppHost\**" />
+    <EmbeddedResource Remove="BookStore.Aspire.AppHost\**" />
+    <None Remove="BookStore.Aspire.AppHost\**" />
+  </ItemGroup>
+
 </Project>
 
