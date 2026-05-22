@@ -1,6 +1,10 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Worker">
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <Sdk Name="Aspire.AppHost.Sdk" Version="9.0.0" />
 
   <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <IsAspireHost>true</IsAspireHost>
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
@@ -8,11 +12,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Aspire.Hosting" Version="13.0.0" />
-    <PackageReference Include="Aspire.Hosting.PostgreSQL" Version="13.0.0" />
-    <PackageReference Include="Aspire.Hosting.MongoDb" Version="13.0.0" />
-    <PackageReference Include="Aspire.Hosting.Redis" Version="13.0.0" />
-    <PackageReference Include="Aspire.Hosting.RabbitMQ" Version="13.0.0" />
+    <PackageReference Include="Aspire.Hosting.AppHost" Version="13.3.0" />
+    <PackageReference Include="Aspire.Hosting.PostgreSQL" Version="13.3.0" />
+    <PackageReference Include="Aspire.Hosting.MongoDb" Version="13.3.0" />
+    <PackageReference Include="Aspire.Hosting.Redis" Version="13.3.0" />
+    <PackageReference Include="Aspire.Hosting.RabbitMQ" Version="13.3.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -23,13 +27,6 @@
     <ProjectReference Include="..\Services\Ordering\Ordering.API\Ordering.API.csproj" />
     <ProjectReference Include="..\ApiGateways\OcelotApiGw\OcelotApiGw.csproj" />
     <ProjectReference Include="..\BuildingBlocks\EventBus.Messages\EventBus.Messages.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Remove="BookStore.Aspire.AppHost\**" />
-    <Content Remove="BookStore.Aspire.AppHost\**" />
-    <EmbeddedResource Remove="BookStore.Aspire.AppHost\**" />
-    <None Remove="BookStore.Aspire.AppHost\**" />
   </ItemGroup>
 
 </Project>
