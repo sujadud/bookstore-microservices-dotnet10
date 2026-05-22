@@ -1,7 +1,5 @@
 # Bookstore Microservices with .NET 10
 
-TL;DR
-
 A cloud-ready, event-driven e-commerce reference implementation built with .NET 10. The repository demonstrates a small microservices ecosystem with an API Gateway, messaging, polyglot persistence, and container-first tooling for local development and CI.
 
 Highlights
